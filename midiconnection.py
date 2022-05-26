@@ -31,10 +31,10 @@ class MidiConnection:
                 self._control_change_dict[msg.control].on_cc_data(msg.value)
         elif msg.type == 'note_on':
             if msg.note in self._note_dict:
-                self._note_dict[msg.note].on_note_data(True)
+                self._note_dict[msg.note].on_note_press()
         elif msg.type == 'note_off':
             if msg.note in self._note_dict:
-                self._note_dict[msg.note].on_note_data(False)
+                self._note_dict[msg.note].on_note_release()
 
     def register_button(self, btn):
         self._note_dict[btn.button_note] = btn

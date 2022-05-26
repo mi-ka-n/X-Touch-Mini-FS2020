@@ -1,6 +1,7 @@
 import time
 import mido
 from activelayer import ActiveLayer, ActiveLayerIdentifier
+import threading
 
 
 class RotaryEncoder:
@@ -22,6 +23,9 @@ class RotaryEncoder:
         self._event_press_long = None
         self._time_of_note_on = time.time()
         self._current_led_ring_value = 0
+        self._is_down = False
+        self._time_long_press_thread = None
+        self._long_press_timeout = 0
 
         if self._encoder_index > 8:
             self._receive_data_cc += 2
@@ -124,19 +128,40 @@ class RotaryEncoder:
             for _ in range(times):
                 down_event()
 
-    def on_note_data(self, on: bool):
-        print(f"on_note_data ENC: {self._encoder_index}: {on}")
+    def time_long_press(self):
+        while True:
+            diff_time = time.time() - self._time_of_note_on
+            if self._is_down is False:
+                print("short press")
+                if self._event_press:
+                    self._event_press()
+                elif self._event_press_short:
+                    self._event_press_short()
+                return
+            elif diff_time > self._long_press_timeout:
+                print("long press")
+                if self._event_press_long:
+                    self._event_press_long()
+                return
+            time.sleep(0.05)
+
+    def on_note_press(self):
+        print(f"on_note_data ENC: {self._encoder_index}: press")
         self._update_active_layer()
-        if on:
-            if self._event_press:
-                self._event_press()
-            self._time_of_note_on = time.time()
-        else:
-            diff = time.time() - self._time_of_note_on
-            if diff > 0.5 and self._event_press_long:
-                self._event_press_long()
-            elif self._event_press_short:
-                self._event_press_short()
+        self._is_down = True
+        self._time_of_note_on = time.time()
+        self._time_long_press_thread = threading.Thread(target=self.time_long_press)
+        self._time_long_press_thread.start()
+    
+    def on_note_release(self):
+        print(f"on_note_data ENC: {self._encoder_index}: release")
+        self._update_active_layer()
+        self._is_down = False
+        if self._time_long_press_thread is not None:
+            self._time_long_press_thread.join()
+    
+    def set_long_press_timeout(self, timeout):
+        self._long_press_timeout = timeout
 
     def on_alternate(self, enable: bool):
         self._alternate_active = enable

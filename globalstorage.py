@@ -24,6 +24,7 @@ class GlobalStorage(metaclass=Singleton):
         self._active_layer_changer = None  # type: ActiveLayerChanger
         self._sq = None
         self._base_matching = None
+        self._long_press_timeout = 0
 
     def clear(self):
         self._buttons = []
@@ -71,6 +72,9 @@ class GlobalStorage(metaclass=Singleton):
 
     def set_base_matching(self, base_matching: bool):
         self._base_matching = base_matching
+    
+    def set_long_press_timeout(self, timeout: float):
+        self._long_press_timeout = timeout
 
     @property
     def encoders(self) -> List[RotaryEncoder]:
@@ -115,3 +119,7 @@ class GlobalStorage(metaclass=Singleton):
     @property
     def base_matching(self) -> bool:
         return self._base_matching
+
+    @property
+    def long_press_timeout(self) -> float:
+        return self._long_press_timeout

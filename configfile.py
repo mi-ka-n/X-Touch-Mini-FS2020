@@ -119,6 +119,8 @@ class ConfigFile:
                 encoder.bind_led_to_simvar(simvar_led)
             if mobiflightsimvar_led:
                 encoder.bind_led_to_mobiflightsimvar(mobiflightsimvar_led)
+            
+            encoder.set_long_press_timeout(GlobalStorage().long_press_timeout)
 
     def _configure_buttons(self, data):
         for btn in self._buttons:
@@ -143,6 +145,8 @@ class ConfigFile:
                 button.bind_led_to_simvar(simvar_led)
             if mobiflightsimvar_led:
                 button.bind_led_to_mobiflightsimvar(mobiflightsimvar_led)
+            
+            button.set_long_press_timeout(GlobalStorage().long_press_timeout)
 
     def _configure_faders(self, data):
         for fad in self._faders:
@@ -206,3 +210,12 @@ class ConfigFile:
                 return base_data['use_aircraft_base_matching']
             else:
                 return False
+
+    @staticmethod
+    def get_long_press_timeout():
+        with open('Configurations/config.json') as base_json_file:
+            base_data = json.load(base_json_file)
+            if 'long_press_timeout' in base_data:
+                return base_data['long_press_timeout']
+            else:
+                return 0.25

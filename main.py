@@ -61,6 +61,7 @@ def initialize(global_storage: GlobalStorage,
 
     global_storage.set_active_layer_changer(ActiveLayerChanger(midi_connection.outport))
     global_storage.set_base_matching(ConfigFile.get_if_use_base_matching())
+    global_storage.set_long_press_timeout(ConfigFile.get_long_press_timeout())
 
 
 def run_aircraft_configuration(global_storage: GlobalStorage):
